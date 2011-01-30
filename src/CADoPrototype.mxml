@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	creationComplete="init();"
+	alpha="1.0"
+>
+  <fx:Style>
+    @namespace "library://ns.adobe.com/flex/spark";    
+    WindowedApplication
+    {
+    skinClass:ClassReference("spark.skins.spark.SparkChromeWindowedApplicationSkin");
+    }
+  </fx:Style>
+  <fx:Script>
+    <![CDATA[
+	     import ImageSelectComponent;
+	     
+	     public function init():void {
+	     trace("init");
+	     var selectComponent:ImageSelectComponent 
+	     = new ImageSelectComponent(loadedImage, button);
+	     var imageCropComponent:ImageCropComponent
+	     = new ImageCropComponent(loadedImage, croppedImage);
+	     }
+    ]]>
+  </fx:Script>
+  <mx:HBox x="5" y="5" width="800" height="40">
+    <s:Button
+	id="button"
+	x="0"
+	y="0"
+	label="Button"
+	/>
+  </mx:HBox>
+  <mx:HBox x="5" y="45" width="800" height="450">
+    <mx:Image
+	id="loadedImage"
+	x="0"
+	y="0"
+	width="400"
+	/>
+  </mx:HBox>
+  <mx:HBox x="5" y="500" width="800" height="450">
+    <mx:Image
+	id="croppedImage"
+	x="0"
+	y="0"
+	width="400"
+	/>
+  </mx:HBox>
+
+
+</s:WindowedApplication>

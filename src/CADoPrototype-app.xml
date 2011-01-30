@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    ルート要素「application」
+    appId属性は、AIRアプリケーションを一意に識別するためのIDで、Javaのパッケージ名と同じくドメイン名をひっくり返した形式が推奨されている。
+    version属性は、アプリケーションのバージョンを表す任意の文字列。
+-->
+<application xmlns="http://ns.adobe.com/air/application/1.5">
+    <id>org.mishimagi.air.cado.CADoPrototype</id>
+    <version>1.0</version>
+
+    <!-- アプリケーションの名称(必須) -->
+    <filename>CADoPrototype</filename>
+
+    <!-- インストール時に表示されるアプリケーションタイトル -->
+    <name>CADoPrototype</name>
+
+    <!-- インストール時に表示される説明文 -->
+    <description>CADo</description>
+
+    <!-- アプリケーションの著作権情報 -->
+    <copyright>2011 Kazuma Mishimagi</copyright>
+
+    <!--
+        アプリケーションのメインコンテンツとなるファイルの指定で、SWFファイルかHTMLファイルである必要がある。
+
+        systemChrome属性は、"standard"か"none"を指定可能で、"standard"の場合はOS標準のタイトルバーが用いられる。"none"の場合は、そういったウィンドウコントロールを自前で用意する必要がある。MXMLが<mx:WindowedApplication>をルート要素に持つ場合は、デフォルトのタイトルバーが表示される。
+
+        transparent属性をtrueにすると、作成するウィンドウの透明度を変更できるようになる。systemChrome属性に"none"を指定している場合にのみtrueを指定可能。
+
+        visible属性は、デフォルトでウィンドウを表示するかどうかの指定。falseを指定した場合、ウィンドウのvisibleプロパティがtrueになるまでウィンドウが表示されない。
+
+        width属性とheight属性は、ウィンドウの幅と高さの初期値を指定する。
+    -->
+    <initialWindow>
+      <title>CADoPrototype</title>
+      <content>CADoPrototype.swf</content>
+      <systemChrome>none</systemChrome>
+      <transparent>true</transparent>
+      <visible>true</visible>
+      <resizable>true</resizable>
+      <width>800</width>
+      <height>800</height>
+    </initialWindow>
+
+    <!--
+        デフォルトのインストール先フォルダを相対パスで指定。
+        (親フォルダはプラットフォームによって異なる)
+    -->
+    <installFolder>mishimagi/air/cado_prototype</installFolder>
+
+    <!--
+        アプリケーションのオリジナルアイコンを指定する場合、PNG、GIF、JPEGファイルの場所をAIRパッケージ内におけるパスで指定する。
+    -->
+    <!--
+      <icon>
+      <image16x16>icons/AIRApp_16.png</image16x16>     
+      <image32x32>icons/AIRApp_32.png</image32x32>   
+      <image48x48>icons/AIRApp_48.png</image48x48>    
+      <image128x128>icons/AIRApp_128.png</image128x128>
+      </icon>
+    -->
+    <!--
+        このタグを含めておくと、appIdが同じで、より新しいバージョンのAIRアプリケーションをインストールしようとした時、アプリケーション内でそれを検知して独自のアップデート処理(カスタムダイアログを出す、など)を行うことが可能になる。
+    -->
+    <handleUpdates/>
+
+    <!--
+      このAIRアプリケーションに関連付けるファイルの拡張子やコンテントタイプを指定する。
+      Windows環境では、すでに登録済みの拡張子の場合は「右クリック→プログラムで開く」の一覧に、未登録の拡張子の場合はデフォルトのアプリケーションとして登録される。
+    -->
+    <!--  
+      <fileTypes>
+        <fileType>
+          <name>Text File</name>
+          <extension>txt</extension>
+          <description>Text File</description>
+          <contentType>text/plain</contentType>
+        </fileType>
+      </fileTypes>
+    -->
+</application>
