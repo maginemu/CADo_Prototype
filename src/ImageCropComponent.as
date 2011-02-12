@@ -74,7 +74,7 @@ package {
 			
 			if(dragging){
 				this.imageSelector.graphics.clear();
-				this.imageSelector.graphics.lineStyle(1 , 0);
+				this.imageSelector.graphics.lineStyle(3 , 0xFF0000);
 				this.imageSelector.graphics.drawRect(lux, luy, rdx - lux, rdy - luy);
 			}	
 		}
