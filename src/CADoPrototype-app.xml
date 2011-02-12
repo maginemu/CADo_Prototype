@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <!--
     ルート要素「application」
     appId属性は、AIRアプリケーションを一意に識別するためのIDで、Javaのパッケージ名と同じくドメイン名をひっくり返した形式が推奨されている。
     version属性は、アプリケーションのバージョンを表す任意の文字列。
 -->
-<application xmlns="http://ns.adobe.com/air/application/1.5">
-    <id>org.yokokubo.air.cado.CADoPrototype</id>
+<application xmlns="http://ns.adobe.com/air/application/2.0">
+    <id>CADoPrototype</id>
     <version>1.0</version>
 
     <!-- アプリケーションの名称(必須) -->
@@ -33,8 +33,8 @@
         width属性とheight属性は、ウィンドウの幅と高さの初期値を指定する。
     -->
     <initialWindow>
+    <content></content>
       <title>CADoPrototype</title>
-      <content>CADoPrototype.swf</content>
       <systemChrome>none</systemChrome>
       <transparent>true</transparent>
       <visible>true</visible>
@@ -47,7 +47,9 @@
         デフォルトのインストール先フォルダを相対パスで指定。
         (親フォルダはプラットフォームによって異なる)
     -->
+    <!--
     <installFolder>yokokubo/air/cado_prototype</installFolder>
+    -->
 
     <!--
         アプリケーションのオリジナルアイコンを指定する場合、PNG、GIF、JPEGファイルの場所をAIRパッケージ内におけるパスで指定する。
@@ -63,7 +65,7 @@
     <!--
         このタグを含めておくと、appIdが同じで、より新しいバージョンのAIRアプリケーションをインストールしようとした時、アプリケーション内でそれを検知して独自のアップデート処理(カスタムダイアログを出す、など)を行うことが可能になる。
     -->
-    <handleUpdates/>
+    <!-- <handleUpdates/> -->
 
     <!--
       このAIRアプリケーションに関連付けるファイルの拡張子やコンテントタイプを指定する。
