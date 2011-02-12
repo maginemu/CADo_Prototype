@@ -6,7 +6,7 @@
     version属性は、アプリケーションのバージョンを表す任意の文字列。
 -->
 <application xmlns="http://ns.adobe.com/air/application/1.5">
-    <id>org.mishimagi.air.cado.CADoPrototype</id>
+    <id>org.yokokubo.air.cado.CADoPrototype</id>
     <version>1.0</version>
 
     <!-- アプリケーションの名称(必須) -->
@@ -19,7 +19,7 @@
     <description>CADo</description>
 
     <!-- アプリケーションの著作権情報 -->
-    <copyright>2011 Kazuma Mishimagi</copyright>
+    <copyright>2011 Anna Yokokubo</copyright>
 
     <!--
         アプリケーションのメインコンテンツとなるファイルの指定で、SWFファイルかHTMLファイルである必要がある。
@@ -47,7 +47,7 @@
         デフォルトのインストール先フォルダを相対パスで指定。
         (親フォルダはプラットフォームによって異なる)
     -->
-    <installFolder>mishimagi/air/cado_prototype</installFolder>
+    <installFolder>yokokubo/air/cado_prototype</installFolder>
 
     <!--
         アプリケーションのオリジナルアイコンを指定する場合、PNG、GIF、JPEGファイルの場所をAIRパッケージ内におけるパスで指定する。
