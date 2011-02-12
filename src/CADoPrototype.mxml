@@ -5,7 +5,7 @@
 	xmlns:s="library://ns.adobe.com/flex/spark"
 	creationComplete="init();"
 	alpha="1.0"
->
+ height="800">
   <fx:Style>
     @namespace "library://ns.adobe.com/flex/spark";    
     WindowedApplication
@@ -18,38 +18,37 @@
 	     import ImageSelectComponent;
 	     
 	     public function init():void {
-	     trace("init");
-	     var selectComponent:ImageSelectComponent 
-	     = new ImageSelectComponent(loadedImage, button);
-	     var imageCropComponent:ImageCropComponent
-	     = new ImageCropComponent(loadedImage, croppedImage);
+			 trace("init");
+		     var selectComponent:ImageSelectComponent 
+		     	= new ImageSelectComponent(loadedImage, button);
+		     var imageCropComponent:ImageCropComponent
+		     	= new ImageCropComponent(loadedImage, design_container, select_container);
+			
 	     }
     ]]>
   </fx:Script>
-  <mx:HBox x="5" y="5" width="800" height="40">
-    <s:Button
-	id="button"
-	x="0"
-	y="0"
-	label="Button"
-	/>
-  </mx:HBox>
-  <mx:HBox x="5" y="45" width="800" height="450">
-    <mx:Image
-	id="loadedImage"
-	x="0"
-	y="0"
-	width="400"
-	/>
-  </mx:HBox>
-  <mx:HBox x="5" y="500" width="800" height="450">
-    <mx:Image
-	id="croppedImage"
-	x="0"
-	y="0"
-	width="400"
-	/>
-  </mx:HBox>
+  <mx:Image
+  id="loadedImage"
+  x="39"
+  y="67"
+  width="400"
+  />
+  <s:Button
+  id="button"
+  x="39"
+  y="31"
+  label="Button"
+  />
+  <mx:Image
+  id="croppedImage"
+  x="39"
+  y="122"
+  width="400"
+  />
+  <s:Group x="467" y="67" width="200" height="200" id="design_container">
+  </s:Group>
+  <s:Group x="39" y="67" width="400" height="32" id="select_container">
+  </s:Group>
 
 
 </s:WindowedApplication>

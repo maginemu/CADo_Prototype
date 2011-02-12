@@ -1,20 +1,24 @@
 package {
-    import mx.controls.Image;
     import flash.display.Bitmap;
     import flash.display.BitmapData;
+    import flash.geom.ColorTransform;
     import flash.geom.Matrix;
     import flash.geom.Rectangle;
-    import flash.geom.ColorTransform;
+    
+    import mx.controls.Image;
+    import mx.core.UIComponent;
+    
+    import spark.components.Group;
 
     public class ImageClipper
     {
 	private var sourceImage:Image;
-	private var destImage:Image;
+	private var destGroup:Group;
 
-	public function ImageClipper(source:Image, dest:Image):void
+	public function ImageClipper(source:Image, dest:Group):void
 	{
 	    this.sourceImage = source;
-	    this.destImage = dest;
+	    this.destGroup = dest;
 	}
 	    
 	public function sliceImage(lux:int, luy:int, rdx:int, rdy:int):void
@@ -44,8 +48,11 @@ package {
 	    var bitmap_data:BitmapData = new BitmapData(width, height, true);
 	    bitmap_data.draw(sourceImage, matrix, new ColorTransform(), "normal", rect, true);
 	    var bitmap:Bitmap = new Bitmap(bitmap_data);
-
-	    this.destImage.load(bitmap);
+		
+		var wrapper:UIComponent = new UIComponent();
+		wrapper.addChild(bitmap);
+	
+	    this.destGroup.addElement(wrapper);
 
 	}
     }
