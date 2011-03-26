@@ -24,33 +24,33 @@ package {
 		
 		public function ImageClipper(source:Image, dest:Group):void
 		{
-		    this.sourceImage = source;
-		    this.destGroup = dest;
+			this.sourceImage = source;
+			this.destGroup = dest;
 		}
 
-		public function sliceImage(lux:int, luy:int, rdx:int, rdy:int):void
+		public function sliceImage(lup:Point, rdp:Point):void
 		{
-		    var width:Number = rdx - lux;
-		    if (width < 0) 
-		    {
-			width = -width;
-		    }
+			var width:Number = rdp.x - lup.x;
+			if (width < 0) 
+			{
+				width = -width;
+			}
+			
+			var height:Number = rdp.y - lup.y;
+			if (height < 0)
+			{
+				height = -height;
+			}
 	
-		    var height:Number = rdy - luy;
-		    if (height < 0)
-		    {
-			height = -height;
-		    }
-	
-		    if (width <= 0 && height <= 0)
-		    {
-			return;
-		    }
+			if (width <= 0 && height <= 0)
+			{
+				return;
+			}
 	
 		    var rect:Rectangle = new Rectangle(0, 0, width, height);
 		    var matrix:Matrix = new Matrix();
-		    matrix.tx = -lux;
-		    matrix.ty = -luy;
+		    matrix.tx = -lup.x;
+		    matrix.ty = -lup.y;
 	
 		    var bitmap_data:BitmapData = new BitmapData(width, height, true);
 		    bitmap_data.draw(sourceImage, matrix, new ColorTransform(), "normal", rect, true);

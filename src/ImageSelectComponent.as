@@ -65,6 +65,8 @@ package {
 	private function imageFileSelected(bmp:Bitmap):void
 	{
 	    Bitmap(this.renderTarget.content).bitmapData = bmp.bitmapData;
+		trace("w:"+bmp.bitmapData.width);
+		trace("h:"+bmp.bitmapData.height);
 	}
     }
 }
