@@ -7,7 +7,8 @@ package {
     import flash.net.URLRequest;
     import flash.events.MouseEvent;
 
-    import ImageFilePicker;
+    import net.annayokokubo.cado.io.ImageFilePicker;
+    import net.annayokokubo.cado.io.ImageFilePicker;
 
     /**
      * Imageをターゲットとして選択された画像を読み込む。

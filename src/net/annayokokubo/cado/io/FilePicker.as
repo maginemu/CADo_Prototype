@@ -1,4 +1,4 @@
-package {
+package net.annayokokubo.cado.io {
     import flash.events.Event;
     import flash.filesystem.File;
     import flash.net.FileFilter;

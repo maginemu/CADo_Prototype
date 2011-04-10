@@ -12,25 +12,33 @@ package
 	import spark.components.Group;
 	import spark.components.List;
 	
+	
+	/**
+	 * FlexibleImageComponentは移動・回転可能な画像コンポーネントを提供します。
+	 * 
+	 **/
 	public class FlexibleImageComponent extends UIComponent
 	{
 		//このFlexibleImageComponentが所属するグループ
 		private var group:Group;
 		
-		//現在移動中かどうかを表すフラグ
-		private var moving:Boolean = false;
+		// 回転開始時にクリックした点
+		private var rotateStartPt:Point = new Point();
 		
-		private var mouseOuted:Boolean = false;
+		// moveが開始したときの,描画座標系におけるクリックされた点
+		private var startMousePos:Point = new Point();
 		
-		//clickされた際のローカル座標
-		private var clickedLocalPoint:Point = new Point();
+		// ローカル左上の点のgroup内の座標とドラッグ開始時のマウス座標の差を保持しておく
+		private var diffToLU:Point = new Point();
 		
+		// centerと左上の点の差のベクトル
+		private var lUToCenterVector:Point = new Point();
+		
+		// 回転を検知する位置
 		private var cornerAreas:Vector.<CornerArea> = new Vector.<CornerArea>();
 		
-		// ローカル座標におけるこのcomponentの中心座標
-		private var localCenter:Point = new Point();
-		
-		// グローバル座標系におけるこのcomponentの中心座標
+		// このFlexibleImageComponentを描画する座標系における
+		// このcomponentの中心座標
 		private var center:Point = new Point();
 		
 		public function FlexibleImageComponent(group:Group, child:DisplayObject)
@@ -39,10 +47,15 @@ package
 			
 			this.group = group;
 			
+			group.mouseEnabledWhereTransparent = true;
+			
 			this.addChild(child);
+			
 			this.width = child.width;
 			this.height = child.height;
 			
+			
+			var localCenter:Point = new Point();
 			if (width != 0)
 			{
 				localCenter.x = width/2;
@@ -54,18 +67,17 @@ package
 			center.x = localCenter.x + this.x;
 			center.y = localCenter.y + this.y;
 			
-			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			this.updateLUToCenterVector();
 			
-			this.group.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-			this.group.addEventListener(MouseEvent.MOUSE_UP, onCornerMouseUp);
-			this.group.addEventListener(MouseEvent.MOUSE_MOVE, onGroupMouseMove);
+			this.addEventListener(MouseEvent.MOUSE_DOWN, startMoving);
 			
-			this.group.addEventListener(MouseEvent.MOUSE_MOVE, onRotate);
 			
+			mylog("w:"+this.width);
+			mylog("h:"+this.height);
+			
+			// -------------------------------
+			// corner area settings
 			var cornerAreaSize:int = 10;
-			
-			trace("w:"+this.width);
-			trace("h:"+this.height);
 			
 			// cornterArea 生成
 			var luCornerArea:CornerArea = new CornerArea(-cornerAreaSize, -cornerAreaSize, cornerAreaSize, cornerAreaSize);
@@ -73,7 +85,7 @@ package
 			var rdCornerArea:CornerArea = new CornerArea(this.width + cornerAreaSize, this.height + cornerAreaSize, cornerAreaSize, cornerAreaSize);
 			var ldCornerArea:CornerArea = new CornerArea(-cornerAreaSize, this.height + cornerAreaSize, cornerAreaSize, cornerAreaSize);
 			
-			// componentの子として追加
+			// 子として追加
 			this.addChild(luCornerArea);
 			this.addChild(ruCornerArea);
 			this.addChild(ldCornerArea);
@@ -84,7 +96,7 @@ package
 			cornerAreas.push(ruCornerArea);
 			cornerAreas.push(rdCornerArea);
 			cornerAreas.push(ldCornerArea);
-
+			
 			
 			// 配置を一番手前にする
 			this.setChildIndex(luCornerArea, this.numChildren - 1);
@@ -92,135 +104,154 @@ package
 			this.setChildIndex(rdCornerArea, this.numChildren - 1);
 			this.setChildIndex(ldCornerArea, this.numChildren - 1);
 			
-			// corner area を描画
-			luCornerArea.drawArea();
-			ruCornerArea.drawArea();
-			rdCornerArea.drawArea();
-			ldCornerArea.drawArea();
-			
-			
-			rdCornerArea.addEventListener(MouseEvent.MOUSE_DOWN, onCornerMouseDown);
-			rdCornerArea.addEventListener(MouseEvent.MOUSE_UP, onCornerMouseUp);
-			
-			this.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			// corner がクリックされたら回転開始
+			rdCornerArea.addEventListener(MouseEvent.MOUSE_DOWN, startRotation);
 		}
 		
-		// 回転中フラグ
-		private var rotate:Boolean = false;
-		
-		// 回転開始時にクリックした点
-		private var rotateStartPt:Point = new Point();
 		
 		// 回転開始
-		private function onCornerMouseDown(e:MouseEvent):void
+		private function startRotation(e:MouseEvent):void
 		{
-			rotate = true;
-			rotateStartPt.x = this.group.mouseX;
-			rotateStartPt.y = this.group.mouseY;
+			mylog("[startRotation]");
+			rotateStartPt.x = this.group.contentMouseX;
+			rotateStartPt.y = this.group.contentMouseY;
 			
-			this.center.x = this.localCenter.x + this.x;
-			this.center.y = this.localCenter.y + this.y;
-			trace("center", this.center);
+			// 親(このcomponent)に他のイベントが発生しないようにstopする
+			// 例えばstartMovingとか。
+			e.stopPropagation();
+			this.updateLUToCenterVector();
+			mylog("center", this.center);
+			
+			// mouseMoveとmouseUpに回転と回転停止をイベントをAddする
+			this.stage.addEventListener(MouseEvent.MOUSE_MOVE, beRotate);
+			this.stage.addEventListener(MouseEvent.MOUSE_UP, stopRotation);
 		}
 		
 		// 回転終了
-		private function onCornerMouseUp(e:MouseEvent):void
+		private function stopRotation(e:MouseEvent):void
 		{
-			trace("x,y when cornerMouseUp:", this.x, this.y);
-			trace("w,h when cornerMouseUp:", this.width, this.height);
-			trace("rotation end");
-			rotate = false;
+			// mouseMove/mouseUpから回転と回転停止イベントをremoveする
+			this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, beRotate);
+			this.stage.removeEventListener(MouseEvent.MOUSE_UP, stopRotation);
+			mylog("[stopRotation]");
+			this.updateLUToCenterVector();
+			this.drawLU();
+			this.drawCenter(false);
 		}
 		
-		// 回転中(ドラッグ中)
-		private function onRotate(e:MouseEvent):void
-		{
-			if (rotate)
-			{
-				trace("onRotate");
-				var currentPoint:Point = new Point(this.group.mouseX, this.group.mouseY);
-				
-				// 原点中心に平行移動
-				var cTranslated:Point = currentPoint.subtract(center);
-				var sTranslated:Point = rotateStartPt.subtract(center);
-				
-				// それぞれの角度を算出
-				var currentDeg:Number = Math.atan2(cTranslated.y, cTranslated.x);
-				var startDeg:Number = Math.atan2(sTranslated.y, sTranslated.x);
-				
-				var rad:Number = currentDeg - startDeg;
-				
-				var rotationMatrix:Matrix = new Matrix();
-				rotationMatrix.translate(- center.x, - center.y);
-				rotationMatrix.rotate(rad);
-				rotationMatrix.translate(center.x, center.y);
-				
-				this.transform.matrix = rotationMatrix;
-				trace("rotation:", cTranslated, sTranslated, rad);
-				trace("w, h:", this.width, this.height);
-			}
-		}
-		
-		private function onMouseOver(e:MouseEvent):void
-		{
-			//if (isOnCornerArea(
-		}
-		
-		/*
-		private function isOnCornerArea(x:Number, y:Number):Boolean
-		{
-			for(var area:CornerArea in cornerAreas)
-			{
-				if (area.contains(x, y)) {
-					return true;
-				}
-			}
-			return false;
-		}*/
-		
-		private function onMouseDown(e:MouseEvent):void
-		{
+		private function startMoving(e:MouseEvent):void
+		{	
+			// mouseMoveとmouseUpに移動と移動終了イベントをAddする
+			this.stage.addEventListener(MouseEvent.MOUSE_MOVE, beMove);
+			this.stage.addEventListener(MouseEvent.MOUSE_UP, stopMoving);
+			
+			mylog("[startMoving called]");
 			// 最前面に移動
 			this.group.setElementIndex(this, this.group.numElements - 1);
 			
-			this.clickedLocalPoint.x = this.mouseX;
-			this.clickedLocalPoint.y = this.mouseY;
+			// 移動開始時にクリックした点を保持する
+			this.startMousePos.x = group.contentMouseX;
+			this.startMousePos.y = group.contentMouseY;
 			
-			this.moving = true;
+			// 左上の点とクリックしている点の差を保持しておく
+			this.diffToLU.x = group.contentMouseX - this.x;
+			this.diffToLU.y = group.contentMouseY - this.y;
+			
+			//this.updateLUToCenterVector();
+			this.updateCenter();
+			
+			this.drawLU();
+			this.drawCenter(false);
+			
+			mylog("clicked point(in group): ", this.startMousePos);
 		}
 		
-		private function onMouseUp(e:MouseEvent):void
+		// 移動終了
+		private function stopMoving(e:MouseEvent):void
 		{
-			if (moving) 
-			{
-				trace("move end");
-				moving = false;
-				center.x = localCenter.x + this.x;
-				center.y = localCenter.y + this.y;
-			}
+			this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, beMove);
+			this.stage.removeEventListener(MouseEvent.MOUSE_UP, stopMoving);
+			mylog("[stopMoving]");
 			
-			if (rotate)
-			{
-				trace("rotation end");
-				rotate = false;
-			}
+			this.updateCenter();
+			this.drawLU();
+			this.drawCenter(false);
 		}
 		
-		private function onGroupMouseMove(e:MouseEvent):void
+
+		
+		private function drawLU(clear:Boolean= true):void {
+			if(clear) {
+				group.graphics.clear();
+			}
+			group.graphics.lineStyle(3,0x000);
+			group.graphics.drawCircle(this.x, this.y, 2);
+		}
+		
+		private function drawCenter(clear:Boolean = true):void {
+			if (clear) {
+				this.group.graphics.clear();
+			}
+			this.group.graphics.lineStyle(3, 0x0000FF);
+			this.group.graphics.drawCircle(center.x, center.y, 3);
+		}
+		
+		private function updateCenter():void {
+			center.x = this.x + this.lUToCenterVector.x;
+			center.y = this.y + this.lUToCenterVector.y;
+		}
+		
+		private function updateLUToCenterVector():void {
+			this.lUToCenterVector.x = center.x - this.x;
+			this.lUToCenterVector.y = center.y - this.y;
+			
+		}
+		
+		private function beRotate(e:MouseEvent):void
 		{
-			if (moving)
-			{
-				this.move(
-					this.group.contentMouseX - this.clickedLocalPoint.x,
-					this.group.contentMouseY - this.clickedLocalPoint.y);
-				mouseOuted = false;
+			mylog("[beRotate executed]");
+			// rotation
+			
+			var currentPoint:Point = new Point(this.group.contentMouseX, this.group.contentMouseY);
+			
+			// 原点中心に平行移動
+			var cTranslated:Point = currentPoint.subtract(center);
+			var sTranslated:Point = rotateStartPt.subtract(center);
+			
+			// それぞれの角度を算出
+			var currentDeg:Number = Math.atan2(cTranslated.y, cTranslated.x);
+			var startDeg:Number = Math.atan2(sTranslated.y, sTranslated.x);
+			
+			var deg:Number = currentDeg - startDeg;
+			var rMatrix:Matrix = this.transform.matrix;
+			rMatrix.translate(-center.x, -center.y);
+			rMatrix.rotate(deg);
+			rMatrix.translate(center.x, center.y);
+			
+			this.transform.matrix = rMatrix;
+			
+			mylog("rotation:", cTranslated, sTranslated, deg);
+			mylog("w, h:", this.width, this.height);
+		}
+		
+		private function beMove(e:MouseEvent):void
+		{
+			mylog("[beMove]");
+			
+			this.move(
+				this.group.contentMouseX - this.diffToLU.x,
+				this.group.contentMouseY - this.diffToLU.y);
 				
-				trace("x, y when mousemove:", this.x, this.y);
+				mylog("x, y when mousemove:", this.x, this.y);
 				
+				this.group.graphics.clear();
 				this.group.graphics.lineStyle(3, 0x0000FF);
 				this.group.graphics.drawCircle(center.x, center.y, 3);
-			}
 		}
 		
+		private function mylog(...messages:Array):void 
+		{
+			trace(this.id, messages);
+		}
 	}
 }

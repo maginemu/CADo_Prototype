@@ -1,4 +1,4 @@
-package {
+package net.annayokokubo.cado.io {
     import flash.display.Bitmap;
     import flash.display.Loader;
     import flash.display.LoaderInfo;
